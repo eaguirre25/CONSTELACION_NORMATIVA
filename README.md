@@ -2,6 +2,22 @@
 
 Visualización interactiva de la constelación normativa vinculada con la dirección escolar.
 
-Versión preparada: vista orbital 3D de costado, con centro **Dirección escolar**, anillos 1 a 4 por cercanía regulatoria, esferas dimensionadas por citas recibidas e interconexiones entre normas citantes y citadas.
+La versión publicada en `index.html` funciona sin `fetch`, es decir, puede abrirse directamente en el navegador y también publicarse en GitHub Pages.
 
-Los archivos completos están listos para subir desde el paquete `CONSTELACION_NORMATIVA_orbital_3D.zip`.
+## Ver el gráfico
+
+Página esperada, una vez activado GitHub Pages:
+
+https://eaguirre25.github.io/CONSTELACION_NORMATIVA/
+
+Para activarla: `Settings` → `Pages` → `Build and deployment` → `Deploy from a branch` → rama `main` → carpeta `/root` → `Save`.
+
+## Criterio visual
+
+- Centro: **Dirección escolar**.
+- Órbitas: anillos regulatorios 1 a 4.
+- Tamaño de esfera: cantidad de citas recibidas.
+- Líneas: citas entre normas.
+- Movimiento: desplazamiento orbital sutil.
+
+La versión completa con toda la base está en el paquete `CONSTELACION_NORMATIVA_standalone.zip`.
