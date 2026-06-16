@@ -2,8 +2,6 @@
 
 Visualización interactiva de la constelación normativa vinculada con la dirección escolar.
 
-La versión publicada en `index.html` funciona sin `fetch`, es decir, puede abrirse directamente en el navegador y también publicarse en GitHub Pages.
-
 ## Ver el gráfico
 
 Página esperada, una vez activado GitHub Pages:
@@ -12,12 +10,12 @@ https://eaguirre25.github.io/CONSTELACION_NORMATIVA/
 
 Para activarla: `Settings` → `Pages` → `Build and deployment` → `Deploy from a branch` → rama `main` → carpeta `/root` → `Save`.
 
-## Criterio visual
+## Criterio visual actual
 
+- Pantalla completa, sin encabezado ni buscador.
 - Centro: **Dirección escolar**.
-- Órbitas: anillos regulatorios 1 a 4.
-- Tamaño de esfera: cantidad de citas recibidas.
-- Líneas: citas entre normas.
-- Movimiento: desplazamiento orbital sutil.
-
-La versión completa con toda la base está en el paquete `CONSTELACION_NORMATIVA_standalone.zip`.
+- 226 normas distribuidas por anillo: A1 = 132, A2 = 67, A3 = 15, A4 = 12.
+- Color de las esferas por jurisdicción: internacional, nacional, federal y provincial.
+- Color de los anillos por proximidad regulatoria.
+- Tamaño de esfera según citas recibidas.
+- Hover/clic sobre una esfera para resaltar conexiones.
