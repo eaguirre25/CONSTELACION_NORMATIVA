@@ -43,20 +43,25 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Rajdhani','Segoe U
   border-radius:10px;padding:20px;
   backdrop-filter:blur(16px);z-index:100;
 }
-#pnorm{font-size:39px;font-weight:800;color:#90b8f8;margin-bottom:8px;line-height:1.02;letter-spacing:.2px}
-#pfull{font-size:20px;color:#5678a8;line-height:1.2;min-height:42px}
-.pl{font-size:14px;color:#31507a;text-transform:uppercase;letter-spacing:.9px;margin-top:14px;margin-bottom:4px}
-.pv{font-size:20px;color:#d0e4ff;line-height:1.18}
+#pnorm{font-size:78px;font-weight:800;color:#90b8f8;margin-bottom:14px;line-height:.92;letter-spacing:.2px}
+#pfull{font-size:40px;color:#5678a8;line-height:1.08;min-height:78px}
+.pl{font-size:28px;color:#31507a;text-transform:uppercase;letter-spacing:.9px;margin-top:22px;margin-bottom:6px}
+.pv{font-size:40px;color:#d0e4ff;line-height:1.05}
 
 /* ── LEGEND ───────────────────────────────────────────── */
 #legend{
   position:fixed;left:16px;bottom:16px;
-  background:rgba(2,5,18,.92);border:1px solid #122040;
-  border-radius:8px;padding:10px 13px;z-index:100;
+  background:rgba(2,5,18,.94);border:1px solid #122040;
+  border-radius:10px;padding:16px 18px;z-index:100;
+  min-width:360px;box-shadow:0 0 24px rgba(30,70,140,.18);
 }
-.leg{display:flex;align-items:center;gap:7px;margin:4px 0;font-size:10px;color:#7a9ccc}
-.ld{width:9px;height:9px;border-radius:50%;flex-shrink:0;box-shadow:0 0 5px currentColor}
-hr.lsep{border:none;border-top:1px solid #0c1c38;margin:6px 0}
+.leg{display:flex;align-items:center;gap:11px;margin:8px 0;font-size:20px;line-height:1.05;color:#a8c4ef;font-weight:700}
+.ld{width:17px;height:17px;border-radius:50%;flex-shrink:0;box-shadow:0 0 10px currentColor}
+.leg small{font-size:15px;color:#5e7fab;font-weight:700;margin-left:auto;padding-left:12px}
+.ringref{display:flex;align-items:center;gap:9px;margin:7px 0;font-size:18px;color:#9db9e4;font-weight:700}
+.rline{width:28px;height:4px;border-radius:8px;box-shadow:0 0 8px currentColor}
+.ringref small{font-size:14px;color:#5e7fab;margin-left:auto}
+hr.lsep{border:none;border-top:1px solid #0c1c38;margin:12px 0}
 
 /* ── TITLE ────────────────────────────────────────────── */
 #head{position:fixed;top:14px;left:50%;transform:translateX(-50%);
@@ -75,6 +80,7 @@ hr.lsep{border:none;border-top:1px solid #0c1c38;margin:6px 0}
   cursor:pointer;user-select:none;transition:color .2s,border-color .2s,box-shadow .2s;
 }
 #lbl-btn:hover,#lbl-btn.on{color:#7aaaf0;border-color:#2a5090;box-shadow:0 0 10px rgba(60,100,220,.25)}
+#source{position:fixed;left:50%;bottom:10px;transform:translateX(-50%);z-index:180;pointer-events:none;font-size:10px;color:#2a4268;letter-spacing:.45px}
 </style>
 </head>
 <body>
@@ -96,17 +102,24 @@ hr.lsep{border:none;border-top:1px solid #0c1c38;margin:6px 0}
 </div>
 
 <div id="legend">
-  <div style="font-size:8px;color:#1c2e4a;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Jurisdicción</div>
-  <div class="leg"><div class="ld" style="color:#3b82f6;background:#3b82f6"></div>Nacional</div>
-  <div class="leg"><div class="ld" style="color:#ef4444;background:#ef4444"></div>Provincial (PBA)</div>
-  <div class="leg"><div class="ld" style="color:#f59e0b;background:#f59e0b"></div>Federal (CFE)</div>
-  <div class="leg"><div class="ld" style="color:#8b00ff;background:#8b00ff"></div>Internacional / Nac.-Internacional</div>
+  <div style="font-size:15px;color:#43628d;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:800">Jurisdicción / conjunto normativo</div>
+  <div class="leg"><div class="ld" style="color:#3b82f6;background:#3b82f6"></div>Nacional <small>n=15</small></div>
+  <div class="leg"><div class="ld" style="color:#ef4444;background:#ef4444"></div>Provincial (PBA) <small>n=200</small></div>
+  <div class="leg"><div class="ld" style="color:#f59e0b;background:#f59e0b"></div>Federal (CFE) <small>n=9</small></div>
+  <div class="leg"><div class="ld" style="color:#ffffff;background:#ffffff"></div>Internacional / Nac.-Internacional <small>n=2</small></div>
   <hr class="lsep">
-  <div style="font-size:8px;color:#1c2e4a">Tamaño = citas recibidas &nbsp;|&nbsp; Anillo 1→4: más cercano → más fundacional</div>
+  <div style="font-size:15px;color:#43628d;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:800">Anillos de proximidad regulatoria</div>
+  <div class="ringref"><div class="rline" style="color:#4ade80;background:#4ade80"></div>Anillo 1 · más cercano <small>n=132</small></div>
+  <div class="ringref"><div class="rline" style="color:#60a5fa;background:#60a5fa"></div>Anillo 2 · corresponsable <small>n=67</small></div>
+  <div class="ringref"><div class="rline" style="color:#fbbf24;background:#fbbf24"></div>Anillo 3 · indirecto <small>n=15</small></div>
+  <div class="ringref"><div class="rline" style="color:#d8b4fe;background:#d8b4fe"></div>Anillo 4 · fundacional <small>n=12</small></div>
+  <hr class="lsep">
+  <div style="font-size:14px;color:#45658f;line-height:1.25">Tamaño de esfera = citas recibidas. Hover/clic o teclas 1–9 = entramados destacados.</div>
 </div>
 
 <div id="ctrl">Arrastrar → rotar &nbsp;|&nbsp; Scroll → zoom &nbsp;|&nbsp; Clic → detalles &nbsp;|&nbsp; Teclas 1–9 → normas más citadas + más vinculadas</div>
 <div id="lbl-btn" class="on">Etiquetas ✓</div>
+<div id="source">Fuente: elaboración propia.</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -187,13 +200,13 @@ drawBG();
 // ════════════════════════════════════════════════════════════════
 const JUR_HEX={
   "Nacional":0x3b82f6,"Provincial PBA":0xef4444,
-  "Federal":0xf59e0b,"Internacional":0x8b00ff,
-  "Nac./Internacional":0x8b00ff
+  "Federal":0xf59e0b,"Internacional":0xffffff,
+  "Nac./Internacional":0xffffff
 };
 const JUR_CSS={
   "Nacional":"#3b82f6","Provincial PBA":"#ef4444",
-  "Federal":"#f59e0b","Internacional":"#8b00ff",
-  "Nac./Internacional":"#8b00ff"
+  "Federal":"#f59e0b","Internacional":"#ffffff",
+  "Nac./Internacional":"#ffffff"
 };
 
 const NODES=[
@@ -238,6 +251,8 @@ const NODES=[
   {id:"B15",label:"CFE 285/16",   ring:2,cit:2, jur:"Federal",           full:"Res. CFE 285/16 – Argentina Enseña y Aprende"},
   {id:"B16",label:"CFE 311/16",   ring:2,cit:2, jur:"Federal",           full:"Res. CFE 311/16 – Promoción de Estudiantes con Discapacidad"},
   {id:"B17",label:"CFE 330/17",   ring:2,cit:5, jur:"Federal",           full:"Res. CFE 330/17 – Marco de Organización de Aprendizajes (MOA)"},
+  {id:"B18",label:"Ley 14.893",   ring:2,cit:2, jur:"Provincial PBA",    full:"Ley Provincial 14.893 – Licencia para Mujeres Víctimas de Violencia"},
+  {id:"B19",label:"Ley 12.569",   ring:2,cit:4, jur:"Provincial PBA",    full:"Ley Provincial 12.569 – Violencia Familiar"},
   {id:"C01",label:"Ley 26.061",   ring:3,cit:12,jur:"Nacional",          full:"Ley 26.061 – Protección Integral de los Derechos de NNyA"},
   {id:"C02",label:"Ley 23.179",   ring:3,cit:3, jur:"Nac./Internacional",full:"Ley 23.179 – Ratificación de la CEDAW"},
   {id:"C03",label:"Res. 2106/24", ring:3,cit:2, jur:"Provincial PBA",    full:"Resolución 2106/24 – Educación Profesional Secundaria"},
@@ -275,8 +290,8 @@ const NODES=[
 let VW=window.innerWidth, VH=window.innerHeight;
 
 const scene  = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(42,VW/VH,.1,360);
-camera.position.set(0,8.5,30);
+const camera = new THREE.PerspectiveCamera(50,VW/VH,.1,300);
+camera.position.set(0,8.5,22);
 camera.lookAt(0,0,0);
 
 const threeCanvas = document.getElementById('threeCanvas');
@@ -294,7 +309,7 @@ const rim2 = new THREE.DirectionalLight(0x202860,1); rim2.position.set(-8,-4,-6)
 
 // ── ROOT GROUP ─────────────────────────────────────────────────
 const rGroup = new THREE.Group();
-rGroup.position.x = -3.55;
+rGroup.position.x = -7.15;
 scene.add(rGroup);
 
 // ── SPARSE 3D STARS ────────────────────────────────────────────
@@ -405,6 +420,7 @@ const ringLines=[];
 // ── CROSS-RING CONNECTIONS ─────────────────────────────────────
 // Se guardan como objetos para poder iluminarlas con mouse, clic o teclas 1–9.
 const LINK_PAIRS=[
+ ["A15","D04"],["A15","D05"],["A15","D03"],["A15","B02"],["A15","B04"],["A15","D10"],["A15","B03"],["A15","B07"],["A15","B18"],["A15","B19"],["A15","A06"],["A15","A09"],
  ["D10","A09"],["D10","A06"],["D10","A15"],["D10","A17"],
  ["D04","B10"],["D04","B11"],["D04","B13"],
  ["D09","C01"],["D08","C04"],
