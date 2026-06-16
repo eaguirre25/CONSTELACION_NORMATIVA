@@ -14,7 +14,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Rajdhani','Segoe U
 
 /* ── CENTER LABEL ─────────────────────────────────────── */
 #center-label{
-  position:fixed;left:59%;top:50%;
+  position:fixed;left:35.5%;top:50%;
   transform:translate(-50%,38px);
   z-index:150;pointer-events:none;
   background:#000;
@@ -100,7 +100,7 @@ hr.lsep{border:none;border-top:1px solid #0c1c38;margin:6px 0}
   <div class="leg"><div class="ld" style="color:#3b82f6;background:#3b82f6"></div>Nacional</div>
   <div class="leg"><div class="ld" style="color:#ef4444;background:#ef4444"></div>Provincial (PBA)</div>
   <div class="leg"><div class="ld" style="color:#f59e0b;background:#f59e0b"></div>Federal (CFE)</div>
-  <div class="leg"><div class="ld" style="color:#c084fc;background:#c084fc"></div>Internacional / Nac.-Internacional</div>
+  <div class="leg"><div class="ld" style="color:#8b00ff;background:#8b00ff"></div>Internacional / Nac.-Internacional</div>
   <hr class="lsep">
   <div style="font-size:8px;color:#1c2e4a">Tamaño = citas recibidas &nbsp;|&nbsp; Anillo 1→4: más cercano → más fundacional</div>
 </div>
@@ -187,13 +187,13 @@ drawBG();
 // ════════════════════════════════════════════════════════════════
 const JUR_HEX={
   "Nacional":0x3b82f6,"Provincial PBA":0xef4444,
-  "Federal":0xf59e0b,"Internacional":0xc084fc,
-  "Nac./Internacional":0xc084fc
+  "Federal":0xf59e0b,"Internacional":0x8b00ff,
+  "Nac./Internacional":0x8b00ff
 };
 const JUR_CSS={
   "Nacional":"#3b82f6","Provincial PBA":"#ef4444",
-  "Federal":"#f59e0b","Internacional":"#c084fc",
-  "Nac./Internacional":"#c084fc"
+  "Federal":"#f59e0b","Internacional":"#8b00ff",
+  "Nac./Internacional":"#8b00ff"
 };
 
 const NODES=[
@@ -275,8 +275,8 @@ const NODES=[
 let VW=window.innerWidth, VH=window.innerHeight;
 
 const scene  = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(50,VW/VH,.1,300);
-camera.position.set(0,8.5,22);
+const camera = new THREE.PerspectiveCamera(42,VW/VH,.1,360);
+camera.position.set(0,8.5,30);
 camera.lookAt(0,0,0);
 
 const threeCanvas = document.getElementById('threeCanvas');
@@ -294,7 +294,7 @@ const rim2 = new THREE.DirectionalLight(0x202860,1); rim2.position.set(-8,-4,-6)
 
 // ── ROOT GROUP ─────────────────────────────────────────────────
 const rGroup = new THREE.Group();
-rGroup.position.x = 2.25;
+rGroup.position.x = -3.55;
 scene.add(rGroup);
 
 // ── SPARSE 3D STARS ────────────────────────────────────────────
@@ -393,12 +393,13 @@ NODES.forEach(n=>{
 });
 
 // ── INTRA-RING CONNECTIONS ─────────────────────────────────────
+const ringLines=[];
 [1,2,3,4].forEach(r=>{
   const pts=byRing[r].map(n=>n._pos.clone()); pts.push(pts[0]);
-  rGroup.add(new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints(pts),
-    new THREE.LineBasicMaterial({color:RING_COL[r],transparent:true,opacity:.35})
-  ));
+  const mat=new THREE.LineBasicMaterial({color:RING_COL[r],transparent:true,opacity:.35,blending:THREE.AdditiveBlending,depthWrite:false});
+  const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),mat);
+  rGroup.add(line);
+  ringLines.push({ring:r,line,mat});
 });
 
 // ── CROSS-RING CONNECTIONS ─────────────────────────────────────
@@ -582,6 +583,9 @@ function setNetworkFocus(active,strong=false){
     const on=active && (l.a===active || l.b===active);
     l.mat.opacity = active ? (on ? .72 : .015) : .12;
   });
+  ringLines.forEach(r=>{
+    r.mat.opacity = active ? (r.ring===active.ring ? .92 : .12) : .35;
+  });
 }
 
 function selectNode(n,strong=true){
@@ -601,7 +605,7 @@ function showPanel(n){
   panel.querySelectorAll('.pl,.pv').forEach(e=>e.remove());
   if(!n){
     pnorm.textContent='Explorador de normas';
-    pfull.innerHTML='<span style="color:#182840">Clic sobre una esfera para ver los detalles. Teclas 1–9 iluminan las normas con más citas y vínculos.</span>';
+    pfull.innerHTML='<span style="color:#182840">Clic sobre una esfera para ver detalles. Teclas 1–9 iluminan las normas con más citas/vínculos y el anillo real al que pertenecen.</span>';
     return;
   }
   const keyIndex=topNodes.indexOf(n)+1;
@@ -694,7 +698,7 @@ window.addEventListener('touchmove',e=>{
 },{passive:true});
 
 let camDist=camera.position.length();
-window.addEventListener('wheel',e=>{camDist=Math.max(9,Math.min(38,camDist+e.deltaY*.04));},{passive:true});
+window.addEventListener('wheel',e=>{camDist=Math.max(14,Math.min(46,camDist+e.deltaY*.04));},{passive:true});
 
 window.addEventListener('keydown',e=>{
   if(e.key>='1' && e.key<='9'){
