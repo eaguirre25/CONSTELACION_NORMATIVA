@@ -14,7 +14,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Rajdhani','Segoe U
 
 /* ── CENTER LABEL ─────────────────────────────────────── */
 #center-label{
-  position:fixed;left:35.5%;top:50%;
+  position:fixed;left:22.5%;top:50%;
   transform:translate(-50%,38px);
   z-index:150;pointer-events:none;
   background:#000;
@@ -38,30 +38,30 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Rajdhani','Segoe U
 
 /* ── DETAIL PANEL ─────────────────────────────────────── */
 #panel{
-  position:fixed;right:16px;top:16px;width:430px;
+  position:fixed;right:16px;top:16px;width:430px;max-height:315px;overflow:hidden;
   background:rgba(2,5,18,.95);border:1px solid #152a50;
-  border-radius:10px;padding:20px;
+  border-radius:10px;padding:18px;
   backdrop-filter:blur(16px);z-index:100;
 }
-#pnorm{font-size:78px;font-weight:800;color:#90b8f8;margin-bottom:14px;line-height:.92;letter-spacing:.2px}
-#pfull{font-size:40px;color:#5678a8;line-height:1.08;min-height:78px}
-.pl{font-size:28px;color:#31507a;text-transform:uppercase;letter-spacing:.9px;margin-top:22px;margin-bottom:6px}
-.pv{font-size:40px;color:#d0e4ff;line-height:1.05}
+#pnorm{font-size:32px;font-weight:800;color:#90b8f8;margin-bottom:9px;line-height:1.02;letter-spacing:.2px}
+#pfull{font-size:18px;color:#5678a8;line-height:1.15;min-height:36px}
+.pl{font-size:13px;color:#31507a;text-transform:uppercase;letter-spacing:.9px;margin-top:12px;margin-bottom:4px}
+.pv{font-size:18px;color:#d0e4ff;line-height:1.12}
 
 /* ── LEGEND ───────────────────────────────────────────── */
 #legend{
-  position:fixed;left:16px;bottom:16px;
+  position:fixed;right:16px;top:350px;left:auto;bottom:auto;
   background:rgba(2,5,18,.94);border:1px solid #122040;
-  border-radius:10px;padding:16px 18px;z-index:100;
-  min-width:360px;box-shadow:0 0 24px rgba(30,70,140,.18);
+  border-radius:10px;padding:13px 15px;z-index:100;
+  width:430px;box-shadow:0 0 24px rgba(30,70,140,.18);
 }
-.leg{display:flex;align-items:center;gap:11px;margin:8px 0;font-size:20px;line-height:1.05;color:#a8c4ef;font-weight:700}
-.ld{width:17px;height:17px;border-radius:50%;flex-shrink:0;box-shadow:0 0 10px currentColor}
-.leg small{font-size:15px;color:#5e7fab;font-weight:700;margin-left:auto;padding-left:12px}
-.ringref{display:flex;align-items:center;gap:9px;margin:7px 0;font-size:18px;color:#9db9e4;font-weight:700}
-.rline{width:28px;height:4px;border-radius:8px;box-shadow:0 0 8px currentColor}
-.ringref small{font-size:14px;color:#5e7fab;margin-left:auto}
-hr.lsep{border:none;border-top:1px solid #0c1c38;margin:12px 0}
+.leg{display:flex;align-items:center;gap:9px;margin:6px 0;font-size:15px;line-height:1.05;color:#a8c4ef;font-weight:700}
+.ld{width:13px;height:13px;border-radius:50%;flex-shrink:0;box-shadow:0 0 8px currentColor}
+.leg small{font-size:12px;color:#5e7fab;font-weight:700;margin-left:auto;padding-left:10px}
+.ringref{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px;color:#9db9e4;font-weight:700}
+.rline{width:24px;height:4px;border-radius:8px;box-shadow:0 0 8px currentColor}
+.ringref small{font-size:12px;color:#5e7fab;margin-left:auto}
+hr.lsep{border:none;border-top:1px solid #0c1c38;margin:9px 0}
 
 /* ── TITLE ────────────────────────────────────────────── */
 #head{position:fixed;top:14px;left:50%;transform:translateX(-50%);
@@ -102,19 +102,19 @@ hr.lsep{border:none;border-top:1px solid #0c1c38;margin:12px 0}
 </div>
 
 <div id="legend">
-  <div style="font-size:15px;color:#43628d;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:800">Jurisdicción / conjunto normativo</div>
+  <div style="font-size:12px;color:#43628d;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:800">Jurisdicción / conjunto normativo</div>
   <div class="leg"><div class="ld" style="color:#3b82f6;background:#3b82f6"></div>Nacional <small>n=15</small></div>
   <div class="leg"><div class="ld" style="color:#ef4444;background:#ef4444"></div>Provincial (PBA) <small>n=200</small></div>
   <div class="leg"><div class="ld" style="color:#f59e0b;background:#f59e0b"></div>Federal (CFE) <small>n=9</small></div>
   <div class="leg"><div class="ld" style="color:#ffffff;background:#ffffff"></div>Internacional / Nac.-Internacional <small>n=2</small></div>
   <hr class="lsep">
-  <div style="font-size:15px;color:#43628d;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:800">Anillos de proximidad regulatoria</div>
+  <div style="font-size:12px;color:#43628d;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:800">Anillos de proximidad regulatoria</div>
   <div class="ringref"><div class="rline" style="color:#4ade80;background:#4ade80"></div>Anillo 1 · más cercano <small>n=132</small></div>
   <div class="ringref"><div class="rline" style="color:#60a5fa;background:#60a5fa"></div>Anillo 2 · corresponsable <small>n=67</small></div>
   <div class="ringref"><div class="rline" style="color:#fbbf24;background:#fbbf24"></div>Anillo 3 · indirecto <small>n=15</small></div>
   <div class="ringref"><div class="rline" style="color:#d8b4fe;background:#d8b4fe"></div>Anillo 4 · fundacional <small>n=12</small></div>
   <hr class="lsep">
-  <div style="font-size:14px;color:#45658f;line-height:1.25">Tamaño de esfera = citas recibidas. Hover/clic o teclas 1–9 = entramados destacados.</div>
+  <div style="font-size:12px;color:#45658f;line-height:1.25">Tamaño de esfera = citas recibidas. Hover/clic o teclas 1–9 = entramados destacados.</div>
 </div>
 
 <div id="ctrl">Arrastrar → rotar &nbsp;|&nbsp; Scroll → zoom &nbsp;|&nbsp; Clic → detalles &nbsp;|&nbsp; Teclas 1–9 → normas más citadas + más vinculadas</div>
@@ -309,7 +309,7 @@ const rim2 = new THREE.DirectionalLight(0x202860,1); rim2.position.set(-8,-4,-6)
 
 // ── ROOT GROUP ─────────────────────────────────────────────────
 const rGroup = new THREE.Group();
-rGroup.position.x = -7.15;
+rGroup.position.x = -7.85;
 scene.add(rGroup);
 
 // ── SPARSE 3D STARS ────────────────────────────────────────────
@@ -435,6 +435,7 @@ const LINK_PAIRS=[
 ];
 const linkLines=[];
 const adjacency=new Map(NODES.map(n=>[n.id,new Set()]));
+const outgoing=new Map(NODES.map(n=>[n.id,0]));
 LINK_PAIRS.forEach(([a,b])=>{
   const na=NODES.find(n=>n.id===a),nb=NODES.find(n=>n.id===b);
   if(!na||!nb)return;
@@ -450,6 +451,7 @@ LINK_PAIRS.forEach(([a,b])=>{
   linkLines.push({line,mat,a:na,b:nb});
   adjacency.get(na.id).add(nb.id);
   adjacency.get(nb.id).add(na.id);
+  outgoing.set(na.id,(outgoing.get(na.id)||0)+1);
 });
 
 // ════════════════════════════════════════════════════════════════
@@ -578,7 +580,7 @@ const pnorm=document.getElementById('pnorm');
 const pfull=document.getElementById('pfull');
 const panel=document.getElementById('panel');
 let hoveredMesh=null,selectedNode=null;
-const nodeScore=n => (n.cit*2) + (adjacency.get(n.id)?.size||0);
+const nodeScore=n => (n.cit*2) + ((adjacency.get(n.id)?.size||0)*1.25) + ((outgoing.get(n.id)||0)*3.2);
 const topNodes=[...NODES].sort((a,b)=>nodeScore(b)-nodeScore(a) || b.cit-a.cit).slice(0,9);
 
 function isConnectedToActive(n,active){
@@ -621,7 +623,7 @@ function showPanel(n){
   panel.querySelectorAll('.pl,.pv').forEach(e=>e.remove());
   if(!n){
     pnorm.textContent='Explorador de normas';
-    pfull.innerHTML='<span style="color:#182840">Clic sobre una esfera para ver detalles. Teclas 1–9 iluminan las normas con más citas/vínculos y el anillo real al que pertenecen.</span>';
+    pfull.innerHTML='<span style="color:#182840">Clic sobre una esfera para ver detalles. Teclas 1–9 iluminan normas con más citas, más vínculos y más remisiones salientes.</span>';
     return;
   }
   const keyIndex=topNodes.indexOf(n)+1;
@@ -684,7 +686,7 @@ threeCanvas.addEventListener('click',e=>{
 // ORBIT + ZOOM
 // ════════════════════════════════════════════════════════════════
 let isDrag=false,prevMX=0,prevMY=0;
-let targetRotX=-.44,targetRotY=0;
+let targetRotX=-.58,targetRotY=-.35;
 let autoRotate=true,autoTimer=null;
 
 threeCanvas.addEventListener('mousedown',e=>{
@@ -769,7 +771,7 @@ window.addEventListener('resize',()=>{
 });
 
 // Boot
-targetRotX=-.44; rGroup.rotation.x=-.44;
+targetRotX=-.58; targetRotY=-.35; rGroup.rotation.x=-.58; rGroup.rotation.y=-.35;
 setNetworkFocus(null); showPanel(null);
 animate();
 </script>
