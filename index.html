@@ -1,1 +1,755 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Constelación normativa</title><style>@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700;800&display=swap');*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020308;color:#d0e4ff;font-family:Rajdhani,'Segoe UI',Arial,sans-serif}canvas{position:fixed;inset:0}.box{position:fixed;z-index:5;background:rgba(2,5,18,.9);border:1px solid #122040;border-radius:10px;padding:10px 13px;backdrop-filter:blur(14px);box-shadow:0 0 22px rgba(30,70,140,.15)}#stats{left:16px;top:16px}.big{font-size:16px;font-weight:800;color:#dbeafe;margin-bottom:3px}.rings{display:flex;gap:9px;flex-wrap:wrap;font-size:11px}.rings b{font-weight:800}.hint{font-size:10px;color:#6383b1;margin-top:5px}#panel{right:16px;top:16px;width:310px}.pn{font-size:16px;font-weight:800;color:#90b8f8;margin-bottom:4px;line-height:1.2}.pf{font-size:11px;color:#5577a6;line-height:1.35}.pl{font-size:9px;color:#426391;text-transform:uppercase;letter-spacing:.7px;margin-top:8px}.pv{font-size:13px;color:#d0e4ff}.tiny{font-size:9px;color:#426391;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px}.leg{display:flex;align-items:center;gap:7px;margin:4px 0;font-size:12px;color:#7a9ccc}.dot{width:10px;height:10px;border-radius:50%;box-shadow:0 0 6px currentColor}#legend{left:16px;bottom:16px}#centerText{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;pointer-events:none;text-align:center;color:#050711;font-weight:800;font-size:24px;line-height:.88;text-shadow:0 0 1px #fff}#tip{position:fixed;z-index:8;display:none;pointer-events:none;background:rgba(2,5,18,.96);border:1px solid #1c3a68;border-radius:7px;padding:7px 12px;font-size:12px;white-space:nowrap;box-shadow:0 0 18px rgba(50,90,220,.4)}@media(max-width:900px){#legend{display:none}#panel{width:245px;right:10px;top:10px}#stats{left:10px;top:10px;max-width:calc(100% - 265px)}#centerText{font-size:18px}}</style></head><body><canvas id="cv"></canvas><div id="centerText">Dirección<br>Escolar</div><div id="tip"></div><div id="stats" class="box"><div class="big">226 normas</div><div class="rings"><span style="color:#ffe000"><b>A1</b> 132</span><span style="color:#ff7a18"><b>A2</b> 67</span><span style="color:#23d3ee"><b>A3</b> 15</span><span style="color:#8b5cf6"><b>A4</b> 12</span></div><div class="hint">Teclas 1–9: normas más citadas</div></div><div id="panel" class="box"><div id="pn" class="pn">Explorador de normas</div><div id="pf" class="pf">Apoyá el mouse sobre una esfera para resaltar conexiones. Clic para fijar. Teclas 1–9 iluminan las más citadas.</div></div><div id="legend" class="box"><div class="tiny">Conjunto normativo</div><div class="leg"><i class="dot" style="color:#c084fc;background:#c084fc"></i>Internacional / Nac.-Internacional</div><div class="leg"><i class="dot" style="color:#3b82f6;background:#3b82f6"></i>Nacional</div><div class="leg"><i class="dot" style="color:#f59e0b;background:#f59e0b"></i>Federal</div><div class="leg"><i class="dot" style="color:#22c55e;background:#22c55e"></i>Provincial</div><div class="tiny" style="margin-top:8px">Anillos de proximidad</div><div style="font-size:10px;color:#45658f;line-height:1.45"><span style="color:#ffe000">1</span> más cercano · <span style="color:#ff7a18">2</span> corresponsable · <span style="color:#23d3ee">3</span> indirecto · <span style="color:#8b5cf6">4</span> fundacional</div></div><script>const cv=document.getElementById('cv'),x=cv.getContext('2d'),J={Internacional:'#c084fc','Internacional/Nacional':'#c084fc',Nacional:'#3b82f6',Federal:'#f59e0b',Provincial:'#22c55e'},R={1:'#ffe000',2:'#ff7a18',3:'#23d3ee',4:'#8b5cf6'},CNT={1:132,2:67,3:15,4:12},DIR={1:1,2:-1,3:1,4:-1},SPD={1:.000052,2:.000039,3:.000031,4:.000024};let W,H,cx,cy,sel=null,hov=null,tip=document.getElementById('tip'),pn=document.getElementById('pn'),pf=document.getElementById('pf'),spin=0,keySel=null;function sz(){W=cv.width=innerWidth;H=cv.height=innerHeight;cx=W*.50;cy=H*.54}addEventListener('resize',sz);sz();let mains=[['Ley 26.206 Educación Nacional',4,'Nacional',20],['Ley 13.688 Educación PBA',4,'Provincial',18],['Ley 26.061 Protección NNyA',3,'Nacional',15],['Const. Nacional',4,'Nacional',13],['Const. PBA',4,'Provincial',12],['Ley 10.579 Estatuto Docente',1,'Provincial',11],['Convención DDNN',4,'Internacional',11],['Dec. 2299/11 Reglamento Gral.',1,'Provincial',10],['Res. CFE 93/09',2,'Federal',9],['Código Civil y Comercial',4,'Nacional',8],['Ley 13.298 Derechos Niñez',4,'Provincial',8],['Ley 10.430 Personal auxiliar',2,'Provincial',7],['Res. 1650/24 Régimen Académico',1,'Provincial',6],['Res. 1235/23 AIC',1,'Provincial',5],['Res. 1236/23 Trayectorias',1,'Provincial',5],['Ley 26.150 ESI',2,'Nacional',5],['Ley 27.621 Educación Ambiental',1,'Nacional',5],['Res. CFE 103/10',2,'Federal',5],['Res. CFE 330/17 MOA',2,'Federal',5],['Res. CFE 84/09',2,'Federal',4],['Ley 26.743 Identidad Género',2,'Nacional',4],['Res. 848/22 Aulas Fortalecimiento',1,'Provincial',4],['Ley 23.179 CEDAW',4,'Internacional/Nacional',3],['Ley 25.673 Salud Sexual',2,'Nacional',3],['Disposición 02/24 Pasantías',1,'Provincial',3],['Salidas educativas',1,'Provincial',3],['Cooperadoras escolares',2,'Provincial',3],['Declaración DDHH',4,'Internacional',2]],nodes=[],edges=[];mains.forEach((d,i)=>nodes.push({id:i,label:d[0],ring:d[1],jur:d[2],cit:d[3],main:1}));function jur(r,i){if(r==4)return['Nacional','Provincial','Internacional','Internacional/Nacional'][i%4];if(r==3)return['Provincial','Nacional','Internacional'][i%3];if(r==2)return['Provincial','Federal','Nacional'][i%3];return i%10?'Provincial':'Nacional'}for(let r=1;r<=4;r++){let h=nodes.filter(n=>n.ring==r).length;for(let i=0;i<CNT[r]-h;i++)nodes.push({id:nodes.length,label:'Norma '+r+'.'+(i+1),ring:r,jur:jur(r,i),cit:i%6?1:2})}let per={1:0,2:0,3:0,4:0};nodes.forEach((n,i)=>{n.idx=per[n.ring]++;n.a=n.idx/CNT[n.ring]*Math.PI*2+Math.sin(i*9)*.05;n.j=Math.sin(i*17)*.045});[[0,1],[0,2],[0,8],[0,17],[1,4],[1,2],[1,5],[1,7],[1,11],[7,0],[7,1],[7,2],[7,5],[7,11],[12,1],[12,7],[12,8],[12,15],[12,20],[5,1],[5,4],[5,11],[2,3],[2,9],[2,10],[15,2],[15,23],[8,0],[8,19],[8,18],[10,2],[24,7],[25,9],[21,7],[14,1],[13,1]].forEach(p=>edges.push([nodes[p[0]],nodes[p[1]]]));for(let i=0;i<175;i++){let a=nodes[(i*37)%226],b=nodes[(i*71+13)%226];if(a!=b)edges.push([a,b])}let con=new Map(nodes.map(n=>[n.id,new Set()]));edges.forEach(e=>{con.get(e[0].id).add(e[1].id);con.get(e[1].id).add(e[0].id)});let top9=nodes.filter(n=>n.main).sort((a,b)=>b.cit-a.cit).slice(0,9);function rr(r){let m=Math.min(W*.43,H*.91);return{1:m*.23,2:m*.41,3:m*.61,4:m*.83}[r]}function nr(n){return 3.8+Math.sqrt(n.cit/20)*19}function pos(n,t){let a=n.a+DIR[n.ring]*SPD[n.ring]*t+spin,z=Math.sin(a),Rr=rr(n.ring);return{x:cx+Math.cos(a)*Rr*.79,y:cy+z*Rr*.34,z,a,r:nr(n)*(0.82+(z+1)*.16)}}function bg(t){let g=x.createRadialGradient(cx,cy,0,cx,cy,Math.max(W,H)*.75);g.addColorStop(0,'#07091a');g.addColorStop(.5,'#04060f');g.addColorStop(1,'#020308');x.fillStyle=g;x.fillRect(0,0,W,H);for(let i=0;i<900;i++){x.fillStyle=i%5?'#ffffff18':'#4b8dff28';x.fillRect((i*137+t*.004)%W,(i*61+i*i)%H,1,1)}}function ring(r,top){x.save();x.translate(cx,cy);x.beginPath();x.ellipse(0,0,rr(r)*.79,rr(r)*.34,0,0,Math.PI*2);let grad=x.createLinearGradient(-rr(r),0,rr(r),0);grad.addColorStop(0,R[r]+(top?'33':'22'));grad.addColorStop(.5,R[r]+(top?'ff':'bb'));grad.addColorStop(1,R[r]+(top?'33':'22'));x.strokeStyle=grad;x.lineWidth=top?1.4:2.3;x.shadowColor=R[r];x.shadowBlur=top?5:12;x.stroke();x.restore()}function round(a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}function panel(n){document.querySelectorAll('.pl,.pv').forEach(e=>e.remove());if(!n){pn.textContent='Explorador de normas';pf.textContent='Apoyá el mouse sobre una esfera para resaltar conexiones. Clic para fijar. Teclas 1–9 iluminan las más citadas.';return}let k=top9.indexOf(n)+1;pn.textContent=(k>0?k+'. ':'')+n.label;pf.textContent=(n.main?'Norma principal del corpus':'Norma del corpus')+' · anillo '+n.ring;[['Conjunto',n.jur.replace('/',' / ')],['Anillo',n.ring],['Citada por',n.cit+' norma'+(n.cit!=1?'s':'')],['Entrelazamientos',con.get(n.id).size]].forEach(a=>{let l=document.createElement('div'),v=document.createElement('div');l.className='pl';v.className='pv';l.textContent=a[0];v.textContent=a[1];if(a[0]=='Conjunto')v.style.color=J[n.jur];if(a[0]=='Anillo')v.style.color=R[n.ring];document.getElementById('panel').append(l,v)})}function labels(active){let lab=nodes.filter(n=>n.main&&(n.cit>=8||n===active||top9.includes(n))).sort((a,b)=>b.cit-a.cit).slice(0,18),L=[],D=[];lab.forEach(n=>(n.x<cx?L:D).push(n));function side(arr,left){arr.sort((a,b)=>a.y-b.y);let yy=70;arr.forEach(n=>{let y=Math.max(yy,Math.min(H-45,n.y));yy=y+28;let key=top9.indexOf(n)+1,txt=(key>0?key+' · ':'')+n.label,w=Math.min(285,x.measureText(txt).width+14),lx=left?18:W-w-18,tx=left?lx+7:lx+w-7,on=n===active,rel=active&&con.get(active.id).has(n.id);x.globalAlpha=active&&!on&&!rel?.25:1;x.strokeStyle=on?'#fff':J[n.jur];x.lineWidth=on?1.4:.7;x.beginPath();x.moveTo(n.x,n.y);x.bezierCurveTo(n.x+(left?-45:45),n.y,lx+(left?w+20:-20),y,lx+(left?w:0),y);x.stroke();x.fillStyle=on?'#0b1022f7':'#02040edf';round(lx,y-12,w,22,5);x.fill();x.strokeStyle=on?'#fff':J[n.jur];x.stroke();x.fillStyle=on?'#fff':J[n.jur];x.font=(on?'800 13px ':'700 11px ')+'Rajdhani,Segoe UI';x.textAlign=left?'left':'right';x.textBaseline='middle';x.fillText(txt,tx,y)})}side(L,true);side(D,false);x.globalAlpha=1}function loop(t){bg(t);[4,3,2,1].forEach(r=>ring(r,false));nodes.forEach(n=>Object.assign(n,pos(n,t)));let active=hov||sel;edges.forEach(e=>{let on=active&&(e[0]===active||e[1]===active);x.globalAlpha=active?(on?.86:.018):.075;x.strokeStyle='#fff';x.lineWidth=on?1.75:.45;x.beginPath();x.moveTo(e[0].x,e[0].y);x.quadraticCurveTo((e[0].x+e[1].x)/2,(e[0].y+e[1].y)/2-10,e[1].x,e[1].y);x.stroke()});x.globalAlpha=1;let cg=x.createRadialGradient(cx,cy,0,cx,cy,78);cg.addColorStop(0,'#fff');cg.addColorStop(.45,'#fff');cg.addColorStop(1,'#fff0');x.fillStyle=cg;x.beginPath();x.arc(cx,cy,72,0,7);x.fill();nodes.slice().sort((a,b)=>a.z-b.z).forEach(n=>{let on=!active||n===active||con.get(active.id).has(n.id),c=J[n.jur],top=top9.includes(n);x.globalAlpha=on?1:.16;let gr=x.createRadialGradient(n.x-n.r*.35,n.y-n.r*.35,1,n.x,n.y,n.r*1.45);gr.addColorStop(0,'#fff');gr.addColorStop(.2,c);gr.addColorStop(1,c+'35');x.fillStyle=gr;x.shadowColor=c;x.shadowBlur=n===active?34:top?16:10;x.beginPath();x.arc(n.x,n.y,n.r*(n===active?1.12:1),0,7);x.fill();x.shadowBlur=0;x.strokeStyle=n===active?'#fff':R[n.ring];x.lineWidth=n===active?2.4:.75;x.stroke()});[1,2,3,4].forEach(r=>ring(r,true));labels(active);requestAnimationFrame(loop)}cv.onmousemove=e=>{let b=cv.getBoundingClientRect(),mx=e.clientX-b.left,my=e.clientY-b.top,best=null,bd=1e9;nodes.forEach(n=>{let d=Math.hypot(mx-n.x,my-n.y);if(d<n.r+5&&d<bd){best=n;bd=d}});hov=best;cv.style.cursor=hov?'pointer':'default';if(hov){panel(hov);tip.style.display='block';tip.style.left=e.clientX+16+'px';tip.style.top=e.clientY-14+'px';tip.style.color=J[hov.jur];tip.textContent=hov.label+' · '+hov.jur+' · '+hov.cit+' citas'}else{tip.style.display='none';if(sel)panel(sel);else panel(null)}};cv.onclick=()=>{sel=hov||null;keySel=null;panel(sel)};cv.onwheel=e=>{spin+=e.deltaY*.0005};addEventListener('keydown',e=>{if(e.key>='1'&&e.key<='9'){let n=top9[Number(e.key)-1];sel=n;hov=null;keySel=n;panel(n)}if(e.key==='0'||e.key==='Escape'){sel=null;hov=null;keySel=null;panel(null)}});requestAnimationFrame(loop)</script></body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Constelación Normativa 3D · Dirección Escolar PBA</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700;800&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Rajdhani','Segoe UI',system-ui,Arial,sans-serif}
+#bgCanvas,#threeCanvas,#lblCanvas{position:fixed;top:0;left:0;display:block}
+#bgCanvas{z-index:0}
+#threeCanvas{z-index:1}
+#lblCanvas{z-index:2;pointer-events:none}
+
+/* ── CENTER LABEL ─────────────────────────────────────── */
+#center-label{
+  position:fixed;left:50%;top:50%;
+  transform:translate(-50%,38px);
+  z-index:150;pointer-events:none;
+  background:#000;
+  color:#ffe000;
+  font-size:10px;font-weight:800;
+  letter-spacing:1.4px;text-transform:uppercase;
+  padding:4px 10px;border-radius:3px;
+  border:1px solid rgba(255,224,0,.55);
+  white-space:nowrap;
+  box-shadow:0 0 14px rgba(255,220,0,.35);
+}
+
+/* ── HOVER TIP ────────────────────────────────────────── */
+#hover-tip{
+  position:fixed;z-index:220;pointer-events:none;
+  background:rgba(2,5,18,.96);border:1px solid #1c3a68;
+  border-radius:6px;padding:5px 11px;font-size:10.5px;
+  display:none;white-space:nowrap;
+  box-shadow:0 0 18px rgba(50,90,220,.4);
+}
+
+/* ── DETAIL PANEL ─────────────────────────────────────── */
+#panel{
+  position:fixed;right:16px;top:16px;width:278px;
+  background:rgba(2,5,18,.95);border:1px solid #152a50;
+  border-radius:10px;padding:15px;
+  backdrop-filter:blur(16px);z-index:100;
+}
+#pnorm{font-size:13px;font-weight:700;color:#90b8f8;margin-bottom:4px;line-height:1.3}
+#pfull{font-size:9.5px;color:#374e70;line-height:1.5;min-height:22px}
+.pl{font-size:8px;color:#1e3050;text-transform:uppercase;letter-spacing:.7px;margin-top:9px;margin-bottom:2px}
+.pv{font-size:11px;color:#d0e4ff;line-height:1.4}
+
+/* ── LEGEND ───────────────────────────────────────────── */
+#legend{
+  position:fixed;left:16px;bottom:16px;
+  background:rgba(2,5,18,.92);border:1px solid #122040;
+  border-radius:8px;padding:10px 13px;z-index:100;
+}
+.leg{display:flex;align-items:center;gap:7px;margin:4px 0;font-size:10px;color:#7a9ccc}
+.ld{width:9px;height:9px;border-radius:50%;flex-shrink:0;box-shadow:0 0 5px currentColor}
+hr.lsep{border:none;border-top:1px solid #0c1c38;margin:6px 0}
+
+/* ── TITLE ────────────────────────────────────────────── */
+#head{position:fixed;top:14px;left:50%;transform:translateX(-50%);
+  text-align:center;pointer-events:none;max-width:580px;z-index:100}
+#head h1{font-size:14px;font-weight:600;color:#6a9ae8;letter-spacing:.4px}
+#head p{font-size:8px;color:#1c2e4a;margin-top:3px}
+
+/* ── CONTROLS HINT ────────────────────────────────────── */
+#ctrl{position:fixed;left:16px;top:16px;font-size:8.5px;color:#182840;line-height:1.9;z-index:100}
+
+/* ── LABEL TOGGLE ─────────────────────────────────────── */
+#lbl-btn{
+  position:fixed;bottom:16px;right:16px;z-index:200;
+  background:rgba(2,5,18,.9);border:1px solid #1c3a68;
+  border-radius:6px;padding:5px 12px;font-size:9.5px;color:#4a6a9a;
+  cursor:pointer;user-select:none;transition:color .2s,border-color .2s,box-shadow .2s;
+}
+#lbl-btn:hover,#lbl-btn.on{color:#7aaaf0;border-color:#2a5090;box-shadow:0 0 10px rgba(60,100,220,.25)}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<canvas id="threeCanvas"></canvas>
+<canvas id="lblCanvas"></canvas>
+<div id="center-label">◆ Dirección Escolar ◆</div>
+<div id="hover-tip"></div>
+
+<div id="head">
+  <h1>Constelación Normativa 3D · Dirección Escolar Secundaria</h1>
+  <p>Provincia de Buenos Aires &nbsp;·&nbsp; Tamaño = citas recibidas &nbsp;·&nbsp; Anillo = proximidad a la gestión directiva</p>
+</div>
+
+<div id="panel">
+  <div id="pnorm">Explorador de normas</div>
+  <div id="pfull" style="color:#1a2e50">Clic sobre una esfera para ver los detalles</div>
+</div>
+
+<div id="legend">
+  <div style="font-size:8px;color:#1c2e4a;text-transform:uppercase;letter-spacing:.7px;margin-bottom:6px">Jurisdicción</div>
+  <div class="leg"><div class="ld" style="color:#3b82f6;background:#3b82f6"></div>Nacional</div>
+  <div class="leg"><div class="ld" style="color:#22c55e;background:#22c55e"></div>Provincial (PBA)</div>
+  <div class="leg"><div class="ld" style="color:#f59e0b;background:#f59e0b"></div>Federal (CFE)</div>
+  <div class="leg"><div class="ld" style="color:#c084fc;background:#c084fc"></div>Internacional / Nac.-Internacional</div>
+  <hr class="lsep">
+  <div style="font-size:8px;color:#1c2e4a">Tamaño = citas recibidas &nbsp;|&nbsp; Anillo 1→4: más cercano → más fundacional</div>
+</div>
+
+<div id="ctrl">Arrastrar → rotar &nbsp;|&nbsp; Scroll → zoom &nbsp;|&nbsp; Clic → detalles &nbsp;|&nbsp; Teclas 1–9 → normas más citadas</div>
+<div id="lbl-btn" class="on">Etiquetas ✓</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ════════════════════════════════════════════════════════════════
+// NEBULA BACKGROUND
+// ════════════════════════════════════════════════════════════════
+const bgCv  = document.getElementById('bgCanvas');
+const bgCtx = bgCv.getContext('2d');
+
+function drawBG(){
+  const W=window.innerWidth, H=window.innerHeight;
+  bgCv.width=W; bgCv.height=H;
+  const cx=W/2, cy=H/2;
+
+  // Deep space gradient
+  const base=bgCtx.createRadialGradient(cx,cy,0,cx,cy,Math.max(W,H)*.75);
+  base.addColorStop(0,'#07091a'); base.addColorStop(.5,'#04060f'); base.addColorStop(1,'#020308');
+  bgCtx.fillStyle=base; bgCtx.fillRect(0,0,W,H);
+
+  // Nebula clouds — vivid sci-fi palette
+  const clouds=[
+    {x:.25,y:.3, r:.6,  c:'rgba(14,18,90,.7)'},
+    {x:.75,y:.65,r:.55, c:'rgba(35,8,80,.6)'},
+    {x:.5, y:.5, r:.7,  c:'rgba(8,20,65,.5)'},
+    {x:.15,y:.75,r:.38, c:'rgba(4,40,60,.45)'},
+    {x:.85,y:.2, r:.42, c:'rgba(30,6,70,.5)'},
+    {x:.6, y:.15,r:.3,  c:'rgba(8,30,80,.4)'},
+    {x:.38,y:.8, r:.32, c:'rgba(5,50,55,.35)'},
+    {x:.5, y:.5, r:.25, c:'rgba(20,12,65,.6)'},
+  ];
+  clouds.forEach(cl=>{
+    const gx=cl.x*W, gy=cl.y*H, gr=Math.max(W,H)*cl.r;
+    const g=bgCtx.createRadialGradient(gx,gy,0,gx,gy,gr);
+    g.addColorStop(0,cl.c); g.addColorStop(1,'rgba(0,0,0,0)');
+    bgCtx.fillStyle=g; bgCtx.fillRect(0,0,W,H);
+  });
+
+  // Sci-fi holographic grid (very faint)
+  bgCtx.save();
+  bgCtx.globalAlpha=.028; bgCtx.strokeStyle='#3355cc'; bgCtx.lineWidth=.6;
+  [.12,.24,.38,.54,.72,.92].forEach(f=>{
+    const r=Math.min(W,H)*f;
+    bgCtx.beginPath(); bgCtx.arc(cx,cy,r,0,Math.PI*2); bgCtx.stroke();
+  });
+  for(let i=0;i<18;i++){
+    const a=i*Math.PI/9;
+    bgCtx.beginPath(); bgCtx.moveTo(cx,cy);
+    bgCtx.lineTo(cx+W*Math.cos(a),cy+W*Math.sin(a)); bgCtx.stroke();
+  }
+  bgCtx.restore();
+
+  // Stars — deterministic seeded
+  let seed=42.91;
+  const rnd=()=>{ seed=Math.sin(seed)*43758.5453%1; return Math.abs(seed); };
+  for(let i=0;i<1100;i++){
+    const sx=rnd()*W, sy=rnd()*H, sr=rnd()*.85+.1, sa=rnd()*.45+.1;
+    bgCtx.beginPath(); bgCtx.arc(sx,sy,sr,0,Math.PI*2);
+    bgCtx.fillStyle=`rgba(200,215,255,${sa})`; bgCtx.fill();
+  }
+  // Brighter accent stars with cross flare
+  for(let i=0;i<55;i++){
+    const sx=rnd()*W, sy=rnd()*H, sr=rnd()*.7+.45, sa=rnd()*.5+.5;
+    bgCtx.beginPath(); bgCtx.arc(sx,sy,sr,0,Math.PI*2);
+    bgCtx.fillStyle=`rgba(225,235,255,${sa})`; bgCtx.fill();
+    if(sa>.85){
+      bgCtx.save(); bgCtx.globalAlpha=.18; bgCtx.strokeStyle='#c8d8ff';
+      bgCtx.lineWidth=.5;
+      bgCtx.beginPath(); bgCtx.moveTo(sx-5,sy); bgCtx.lineTo(sx+5,sy); bgCtx.stroke();
+      bgCtx.beginPath(); bgCtx.moveTo(sx,sy-5); bgCtx.lineTo(sx,sy+5); bgCtx.stroke();
+      bgCtx.restore();
+    }
+  }
+}
+drawBG();
+
+// ════════════════════════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════════════════════════
+const JUR_HEX={
+  "Nacional":0x3b82f6,"Provincial PBA":0x22c55e,
+  "Federal":0xf59e0b,"Internacional":0xc084fc,
+  "Nac./Internacional":0xc084fc
+};
+const JUR_CSS={
+  "Nacional":"#3b82f6","Provincial PBA":"#22c55e",
+  "Federal":"#f59e0b","Internacional":"#c084fc",
+  "Nac./Internacional":"#c084fc"
+};
+
+const NODES=[
+  {id:"A01",label:"Ley 25.273",   ring:1,cit:1, jur:"Nacional",          full:"Ley 25.273 – Inasistencias por gravidez"},
+  {id:"A02",label:"Ley 25.808",   ring:1,cit:2, jur:"Nacional",          full:"Ley 25.808 – Derecho al estudio durante el embarazo y la maternidad"},
+  {id:"A03",label:"Ley 26.877",   ring:1,cit:2, jur:"Nacional",          full:"Ley 26.877 – Reconocimiento de Centros de Estudiantes"},
+  {id:"A04",label:"Ley 26.892",   ring:1,cit:5, jur:"Nacional",          full:"Ley 26.892 – Promoción de la Convivencia y Abordaje de la Conflictividad Social"},
+  {id:"A05",label:"Ley 27.621",   ring:1,cit:3, jur:"Nacional",          full:"Ley 27.621 – Educación Ambiental Integral"},
+  {id:"A06",label:"Ley 10.579",   ring:1,cit:11,jur:"Provincial PBA",    full:"Ley 10.579 – Estatuto del Docente de la Provincia de Buenos Aires"},
+  {id:"A07",label:"Ley 13.923",   ring:1,cit:1, jur:"Provincial PBA",    full:"Ley 13.923 – Distinción al Alumno Solidario"},
+  {id:"A08",label:"Ley 14.581",   ring:1,cit:1, jur:"Provincial PBA",    full:"Ley 14.581 – Centros de Estudiantes (PBA)"},
+  {id:"A09",label:"Dec. 2299/11", ring:1,cit:10,jur:"Provincial PBA",    full:"Decreto 2299/11 – Reglamento General de Instituciones Educativas PBA"},
+  {id:"A10",label:"Dec. 1374/11", ring:1,cit:1, jur:"Provincial PBA",    full:"Decreto 1374/11 – Pasantías Nivel Secundario"},
+  {id:"A11",label:"Dec. 252/06",  ring:1,cit:1, jur:"Provincial PBA",    full:"Decreto 252/06 – Modificación Art. 75 del Estatuto del Docente"},
+  {id:"A12",label:"Dec. 256/05",  ring:1,cit:4, jur:"Provincial PBA",    full:"Decreto 256/05 – Dirección de Educación Secundaria Básica"},
+  {id:"A13",label:"Dec. 258/05",  ring:1,cit:2, jur:"Provincial PBA",    full:"Decreto 258/05 – Designación de Docentes por Suplencias de 3 a 4 días"},
+  {id:"A14",label:"Dec. 3991/97", ring:1,cit:1, jur:"Provincial PBA",    full:"Decreto 3991/97 – Uso de la Bandera Bonaerense"},
+  {id:"A15",label:"Res. 1650/24", ring:1,cit:4, jur:"Provincial PBA",    full:"Resolución 1650/24 – Régimen Académico para la Educación Secundaria"},
+  {id:"A16",label:"Res. 1235/23", ring:1,cit:4, jur:"Provincial PBA",    full:"Resolución 1235/23 – Acuerdos Institucionales de Convivencia (AIC)"},
+  {id:"A17",label:"Res. 1236/23", ring:1,cit:5, jur:"Provincial PBA",    full:"Resolución 1236/23 – Organización del Ciclo Lectivo y Trayectorias Educativas"},
+  {id:"A18",label:"Res. 2309/22", ring:1,cit:1, jur:"Provincial PBA",    full:"Resolución 2309/22 – Consejo Consultivo de Estudiantes Secundarios"},
+  {id:"A19",label:"Res. 848/22",  ring:1,cit:3, jur:"Provincial PBA",    full:"Resolución 848/22 – Aulas de Fortalecimiento de Trayectorias Educativas"},
+  {id:"A20",label:"Res. 1884/25", ring:1,cit:3, jur:"Provincial PBA",    full:"Resolución 1884/25 – Coordinador/a Institucional de Trayectorias Educativas"},
+  {id:"A21",label:"Res. 2624/25", ring:1,cit:1, jur:"Provincial PBA",    full:"Resolución 2624/25 – Programa FORTE"},
+  {id:"A22",label:"Res. 2251/24", ring:1,cit:2, jur:"Provincial PBA",    full:"Resolución 2251/24 – Comunidades Terapéuticas"},
+  {id:"A23",label:"Res. 3871/24", ring:1,cit:2, jur:"Provincial PBA",    full:"Resolución 3871/24 – Salidas Educativas"},
+  {id:"A24",label:"Dec. 900/23",  ring:1,cit:2, jur:"Provincial PBA",    full:"Decreto 900/23 – Modificación del Estatuto del Docente (PBA)"},
+  {id:"B01",label:"Ley 25.673",   ring:2,cit:3, jur:"Nacional",          full:"Ley 25.673 – Salud Sexual y Procreación Responsable"},
+  {id:"B02",label:"Ley 26.150",   ring:2,cit:5, jur:"Nacional",          full:"Ley 26.150 – Educación Sexual Integral (ESI)"},
+  {id:"B03",label:"Ley 26.743",   ring:2,cit:4, jur:"Nacional",          full:"Ley 26.743 – Identidad de Género"},
+  {id:"B04",label:"Ley 27.234",   ring:2,cit:2, jur:"Nacional",          full:"Ley 27.234 – Educar en Igualdad: Prevención de Violencia de Género"},
+  {id:"B05",label:"D-L 7647/70",  ring:2,cit:5, jur:"Provincial PBA",    full:"Decreto-Ley 7647/70 – Procedimiento Administrativo de la PBA"},
+  {id:"B06",label:"Ley 10.430",   ring:2,cit:6, jur:"Provincial PBA",    full:"Ley 10.430 – Estatuto del Personal Civil de la Adm. Pública PBA"},
+  {id:"B07",label:"Ley 14.744",   ring:2,cit:2, jur:"Provincial PBA",    full:"Ley 14.744 – Educación Sexual Integral (PBA)"},
+  {id:"B08",label:"Dec. 4767/72", ring:2,cit:1, jur:"Provincial PBA",    full:"Decreto 4767/72 – Cooperadoras Escolares"},
+  {id:"B09",label:"Dec. 2485/92", ring:2,cit:3, jur:"Provincial PBA",    full:"Decreto 2485/92 – Reglamento del Estatuto del Docente"},
+  {id:"B10",label:"CFE 84/09",    ring:2,cit:5, jur:"Federal",           full:"Res. CFE 84/09 – Lineamientos Políticos de la Educación Secundaria"},
+  {id:"B11",label:"CFE 93/09",    ring:2,cit:9, jur:"Federal",           full:"Res. CFE 93/09 – Organización Pedagógica e Institucional Secundaria"},
+  {id:"B12",label:"CFE 102/10",   ring:2,cit:3, jur:"Federal",           full:"Resolución CFE 102/10"},
+  {id:"B13",label:"CFE 103/10",   ring:2,cit:5, jur:"Federal",           full:"Res. CFE 103/10 – Regularización de Trayectorias Escolares"},
+  {id:"B14",label:"CFE 174/12",   ring:2,cit:5, jur:"Federal",           full:"Res. CFE 174/12 – Mejoramiento de la Enseñanza"},
+  {id:"B15",label:"CFE 285/16",   ring:2,cit:2, jur:"Federal",           full:"Res. CFE 285/16 – Argentina Enseña y Aprende"},
+  {id:"B16",label:"CFE 311/16",   ring:2,cit:2, jur:"Federal",           full:"Res. CFE 311/16 – Promoción de Estudiantes con Discapacidad"},
+  {id:"B17",label:"CFE 330/17",   ring:2,cit:5, jur:"Federal",           full:"Res. CFE 330/17 – Marco de Organización de Aprendizajes (MOA)"},
+  {id:"C01",label:"Ley 26.061",   ring:3,cit:12,jur:"Nacional",          full:"Ley 26.061 – Protección Integral de los Derechos de NNyA"},
+  {id:"C02",label:"Ley 23.179",   ring:3,cit:3, jur:"Nac./Internacional",full:"Ley 23.179 – Ratificación de la CEDAW"},
+  {id:"C03",label:"Res. 2106/24", ring:3,cit:2, jur:"Provincial PBA",    full:"Resolución 2106/24 – Educación Profesional Secundaria"},
+  {id:"C04",label:"Res. 736/12",  ring:3,cit:3, jur:"Provincial PBA",    full:"Resolución 736/12 – Educación Inclusiva"},
+  {id:"C05",label:"Res. 1664/17", ring:3,cit:3, jur:"Provincial PBA",    full:"Resolución 1664/17 – Educación Inclusiva: trayectorias"},
+  {id:"C06",label:"Res. 4891/18", ring:3,cit:3, jur:"Provincial PBA",    full:"Resolución 4891/18 – Adecuación CFE 311/16 (Educación Inclusiva)"},
+  {id:"C07",label:"Res. 828/18",  ring:3,cit:2, jur:"Provincial PBA",    full:"Resolución 828/18 – Educación Técnico Profesional"},
+  {id:"C08",label:"Res. 2037/18", ring:3,cit:3, jur:"Provincial PBA",    full:"Resolución 2037/18 – Educación Técnico Profesional (implementación)"},
+  {id:"C09",label:"RP 1641/07",   ring:3,cit:2, jur:"Provincial PBA",    full:"Resolución Provincial 1641/07"},
+  {id:"C10",label:"RP 2412/17",   ring:3,cit:2, jur:"Provincial PBA",    full:"Resolución Provincial 2412/17"},
+  {id:"C11",label:"RP 2415/08",   ring:3,cit:2, jur:"Provincial PBA",    full:"Resolución Provincial 2415/08"},
+  {id:"C12",label:"RP 3232/06",   ring:3,cit:2, jur:"Provincial PBA",    full:"Resolución Provincial 3232/06"},
+  {id:"C13",label:"RP 495/07",    ring:3,cit:2, jur:"Provincial PBA",    full:"Resolución Provincial 495/07"},
+  {id:"C14",label:"RP 7/17",      ring:3,cit:2, jur:"Provincial PBA",    full:"Resolución Provincial 7/17"},
+  {id:"C15",label:"RP 1504/11",   ring:3,cit:2, jur:"Provincial PBA",    full:"Resolución Provincial 1504/11"},
+  {id:"D01",label:"Const. Nac.",  ring:4,cit:14,jur:"Nacional",          full:"Constitución de la Nación Argentina"},
+  {id:"D02",label:"Cód.Civil/Com",ring:4,cit:5, jur:"Nacional",          full:"Código Civil y Comercial de la Nación (2015)"},
+  {id:"D03",label:"Ley 26.075",   ring:4,cit:5, jur:"Nacional",          full:"Ley 26.075 – Financiamiento Educativo"},
+  {id:"D04",label:"Ley 26.206",   ring:4,cit:21,jur:"Nacional",          full:"Ley 26.206 – Ley de Educación Nacional"},
+  {id:"D05",label:"Ley 26.058",   ring:4,cit:6, jur:"Nacional",          full:"Ley 26.058 – Educación Técnico Profesional"},
+  {id:"D06",label:"Ley 26.774",   ring:4,cit:2, jur:"Nacional",          full:"Ley 26.774 – Voto a los 16 años"},
+  {id:"D07",label:"Ley 26.485",   ring:4,cit:2, jur:"Nacional",          full:"Ley 26.485 – Protección contra la Violencia hacia las Mujeres"},
+  {id:"D08",label:"Const. PBA",   ring:4,cit:10,jur:"Provincial PBA",    full:"Constitución de la Provincia de Buenos Aires"},
+  {id:"D09",label:"Ley 13.298",   ring:4,cit:9, jur:"Provincial PBA",    full:"Ley 13.298 – Protección de los Derechos de los Niños (PBA)"},
+  {id:"D10",label:"Ley 13.688",   ring:4,cit:21,jur:"Provincial PBA",    full:"Ley 13.688 – Ley de Educación de la Provincia de Buenos Aires"},
+  {id:"D11",label:"Ley 13.552",   ring:4,cit:3, jur:"Provincial PBA",    full:"Ley 13.552 – Paritaria Docente PBA"},
+  {id:"D12",label:"CDN",          ring:4,cit:11,jur:"Internacional",     full:"Convención sobre los Derechos del Niño (Ley 23.849)"},
+  {id:"D13",label:"Conv.Americ.", ring:4,cit:3, jur:"Internacional",     full:"Convención Americana sobre Derechos Humanos (Pacto de San José)"},
+  {id:"D14",label:"Decl.DDHH",    ring:4,cit:2, jur:"Internacional",     full:"Declaración Universal de Derechos Humanos (1948)"},
+];
+
+// ════════════════════════════════════════════════════════════════
+// THREE.JS SETUP
+// ════════════════════════════════════════════════════════════════
+let VW=window.innerWidth, VH=window.innerHeight;
+
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50,VW/VH,.1,300);
+camera.position.set(0,8.5,22);
+camera.lookAt(0,0,0);
+
+const threeCanvas = document.getElementById('threeCanvas');
+const renderer = new THREE.WebGLRenderer({canvas:threeCanvas,antialias:true,alpha:true});
+renderer.setSize(VW,VH);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setClearColor(0x000000,0);
+
+// ── LIGHTS ─────────────────────────────────────────────────────
+scene.add(new THREE.AmbientLight(0x0a1540,6));
+const sunPt = new THREE.PointLight(0x4488ff,4,70);
+sunPt.position.set(0,0,0); scene.add(sunPt);
+const rim  = new THREE.DirectionalLight(0x5570c0,2); rim.position.set(6,14,10); scene.add(rim);
+const rim2 = new THREE.DirectionalLight(0x202860,1); rim2.position.set(-8,-4,-6); scene.add(rim2);
+
+// ── ROOT GROUP ─────────────────────────────────────────────────
+const rGroup = new THREE.Group();
+scene.add(rGroup);
+
+// ── SPARSE 3D STARS ────────────────────────────────────────────
+{
+  const N=800, p=new Float32Array(N*3);
+  for(let i=0;i<N;i++){p[i*3]=(Math.random()-.5)*160;p[i*3+1]=(Math.random()-.5)*160;p[i*3+2]=(Math.random()-.5)*160;}
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(p,3));
+  scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:.05,transparent:true,opacity:.35})));
+}
+
+// ── RING CONFIG ────────────────────────────────────────────────
+const RING_R   = {1:3.1, 2:5.9, 3:8.6, 4:11.2};
+const RING_COL = {1:0x4ade80,2:0x60a5fa,3:0xfbbf24,4:0xd8b4fe};
+const RING_OFF = {1:.28, 2:1.08, 3:1.78, 4:.68};
+const RING_TILT= {1:.16, 2:-.10, 3:.09, 4:-.13};
+
+// helper: additive glow mesh
+function glowMesh(radius,scale,opacity,hex){
+  return new THREE.Mesh(
+    new THREE.SphereGeometry(radius*scale,12,12),
+    new THREE.MeshBasicMaterial({
+      color:hex,transparent:true,opacity,
+      side:THREE.BackSide,
+      blending:THREE.AdditiveBlending,depthWrite:false
+    })
+  );
+}
+
+// ── TORUS RING GUIDES ──────────────────────────────────────────
+[1,2,3,4].forEach(r=>{
+  const col=RING_COL[r], tilt=Math.PI/2+RING_TILT[r], R=RING_R[r];
+  // Main ring
+  const t1=new THREE.Mesh(new THREE.TorusGeometry(R,.018,8,160),
+    new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.28,blending:THREE.AdditiveBlending,depthWrite:false}));
+  t1.rotation.x=tilt; rGroup.add(t1);
+  // Soft outer halo
+  const t2=new THREE.Mesh(new THREE.TorusGeometry(R,.065,6,160),
+    new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.06,blending:THREE.AdditiveBlending,depthWrite:false}));
+  t2.rotation.x=tilt; rGroup.add(t2);
+});
+
+// ── CENTER SPHERE — BRIGHT YELLOW ─────────────────────────────
+{
+  const YEL=0xffe000;
+  // Core sphere
+  rGroup.add(new THREE.Mesh(
+    new THREE.SphereGeometry(.72,40,40),
+    new THREE.MeshPhongMaterial({color:YEL,emissive:YEL,emissiveIntensity:1.4,shininess:220,transparent:false})
+  ));
+  // Glow shells (additive — very bright accumulation)
+  [[1.55,.22],[2.2,.10],[3.2,.05],[4.8,.025]].forEach(([sc,op])=>{
+    const gm=glowMesh(.72,sc,op,YEL); rGroup.add(gm);
+  });
+  // Pulsing ring coronas
+  [.9,1.18,1.5,1.9].forEach((r,i)=>{
+    const t=new THREE.Mesh(
+      new THREE.TorusGeometry(r,.018,6,80),
+      new THREE.MeshBasicMaterial({color:YEL,transparent:true,opacity:.28/(i+1),blending:THREE.AdditiveBlending,depthWrite:false})
+    );
+    t.rotation.x=Math.PI/2+i*.18; rGroup.add(t);
+  });
+}
+
+// ── NODE SIZING ────────────────────────────────────────────────
+const maxCit=Math.max(...NODES.map(n=>n.cit));
+function nodeR(cit){ return .22 + .70*Math.sqrt((cit-1)/(maxCit-1)); }
+
+// ── BUILD NODES ────────────────────────────────────────────────
+const byRing={1:[],2:[],3:[],4:[]};
+NODES.forEach(n=>byRing[n.ring].push(n));
+const rayMeshes=[], meshToNode=new Map();
+
+NODES.forEach(n=>{
+  const arr=byRing[n.ring], idx=arr.indexOf(n), total=arr.length;
+  const ang=RING_OFF[n.ring]+(idx/total)*Math.PI*2;
+  const R=RING_R[n.ring], tilt=RING_TILT[n.ring];
+  n._pos = new THREE.Vector3(R*Math.cos(ang), R*Math.sin(ang)*Math.sin(tilt), R*Math.sin(ang)*Math.cos(tilt));
+  n._angle=ang;
+  const hex=JUR_HEX[n.jur]||0x94a3b8, rad=nodeR(n.cit);
+
+  // ── Main sphere (opaque, high emissive)
+  const mat=new THREE.MeshPhongMaterial({
+    color:hex,emissive:hex,emissiveIntensity:.92,shininess:200,transparent:true,opacity:1
+  });
+  const mesh=new THREE.Mesh(new THREE.SphereGeometry(rad,28,28),mat);
+  mesh.position.copy(n._pos); rGroup.add(mesh);
+  rayMeshes.push(mesh); meshToNode.set(mesh,n);
+  n._mesh=mesh; n._mat=mat;
+
+  // ── 3 additive glow shells → spectacular bloom
+  [[1.5,.18],[2.2,.08],[3.2,.035]].forEach(([sc,op])=>{
+    const gm=glowMesh(rad,sc,op,hex);
+    gm.position.copy(n._pos); rGroup.add(gm);
+    if(sc===1.5){n._glowMesh=gm;n._glowMat=gm.material;}
+  });
+});
+
+// ── INTRA-RING CONNECTIONS ─────────────────────────────────────
+[1,2,3,4].forEach(r=>{
+  const pts=byRing[r].map(n=>n._pos.clone()); pts.push(pts[0]);
+  rGroup.add(new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(pts),
+    new THREE.LineBasicMaterial({color:RING_COL[r],transparent:true,opacity:.35})
+  ));
+});
+
+// ── CROSS-RING CONNECTIONS ─────────────────────────────────────
+// Se guardan como objetos para poder iluminarlas con mouse, clic o teclas 1–9.
+const LINK_PAIRS=[
+ ["D10","A09"],["D10","A06"],["D10","A15"],["D10","A17"],
+ ["D04","B10"],["D04","B11"],["D04","B13"],
+ ["D09","C01"],["D08","C04"],
+ ["C01","A04"],["C01","A16"],
+ ["C01","B02"],["C01","B03"],
+ ["B11","A15"],["B11","A17"],["B11","A16"],
+ ["B13","A19"],["B02","A03"],
+ ["D10","D04"],["D10","C01"],["D10","D08"],["D04","C01"],
+ ["A09","D04"],["A09","C01"],["A09","D08"],["A06","D10"],
+ ["A15","B11"],["A15","B13"],["A15","B02"],["A15","B03"],
+ ["D12","C01"],["D12","D04"],["D12","D10"]
+];
+const linkLines=[];
+const adjacency=new Map(NODES.map(n=>[n.id,new Set()]));
+LINK_PAIRS.forEach(([a,b])=>{
+  const na=NODES.find(n=>n.id===a),nb=NODES.find(n=>n.id===b);
+  if(!na||!nb)return;
+  const mat=new THREE.LineBasicMaterial({
+    color:0xffffff,transparent:true,opacity:.12,
+    blending:THREE.AdditiveBlending,depthWrite:false
+  });
+  const line=new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([na._pos.clone(),nb._pos.clone()]),
+    mat
+  );
+  rGroup.add(line);
+  linkLines.push({line,mat,a:na,b:nb});
+  adjacency.get(na.id).add(nb.id);
+  adjacency.get(nb.id).add(na.id);
+});
+
+// ════════════════════════════════════════════════════════════════
+// 2D LABEL CANVAS
+// ════════════════════════════════════════════════════════════════
+const lblCv  = document.getElementById('lblCanvas');
+const lctx   = lblCv.getContext('2d');
+lblCv.width  = VW; lblCv.height = VH;
+
+let showLabels=true;
+document.getElementById('lbl-btn').addEventListener('click',function(){
+  showLabels=!showLabels;
+  this.textContent=showLabels?'Etiquetas ✓':'Etiquetas ○';
+  this.classList.toggle('on',showLabels);
+  if(!showLabels) lctx.clearRect(0,0,VW,VH);
+});
+
+function updateLabels(){
+  lctx.clearRect(0,0,VW,VH);
+  if(!showLabels) return;
+
+  const cx=VW/2, cy=VH/2;
+
+  // ── Project nodes to screen
+  const items=[];
+  NODES.forEach(n=>{
+    const important=n.cit>=8 || topNodes.includes(n) || n===selectedNode;
+    if(!important) return;
+    const wp=n._pos.clone(); rGroup.localToWorld(wp);
+    const sc=wp.clone().project(camera);
+    const sz=sc.z;
+    if(sz>=0.82) return; // behind camera, skip
+
+    const sx=(sc.x*.5+.5)*VW, sy=(-sc.y*.5+.5)*VH;
+    const alpha=sz<-0.1 ? 1.0 : Math.max(0, 1-(sz+.1)/.92); // smooth fade at back
+    if(alpha<.05) return;
+
+    const ddx=sx-cx, ddy=sy-cy, dlen=Math.sqrt(ddx*ddx+ddy*ddy)||1;
+    const nx=ddx/dlen, ny=ddy/dlen;
+
+    // Initial label position: radially outward from node
+    const ringOffset = {1:52,2:58,3:65,4:72}[n.ring];
+    const projR = nodeR(n.cit) * (VH*0.052); // approx screen radius
+    items.push({n, sx,sy,sz,alpha,nx,ny,
+      lx: sx+nx*(projR+ringOffset),
+      ly: sy+ny*(projR+ringOffset)
+    });
+  });
+
+  // ── Repulsion — 8 iterations, well-separated
+  const MIN_SEP=50;
+  for(let iter=0;iter<8;iter++){
+    for(let i=0;i<items.length;i++){
+      for(let j=i+1;j<items.length;j++){
+        const a=items[i],b=items[j];
+        const dx=a.lx-b.lx, dy=a.ly-b.ly;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<MIN_SEP && d>.01){
+          const f=(MIN_SEP-d)/d*.5;
+          a.lx+=dx*f; a.ly+=dy*f;
+          b.lx-=dx*f; b.ly-=dy*f;
+        }
+      }
+    }
+  }
+
+  // ── Clamp to viewport
+  items.forEach(it=>{
+    it.lx=Math.max(6,Math.min(VW-6,it.lx));
+    it.ly=Math.max(12,Math.min(VH-8,it.ly));
+  });
+
+  // ── Draw back-to-front (higher sz = further back)
+  items.sort((a,b)=>b.sz-a.sz);
+
+  items.forEach(({n,sx,sy,lx,ly,alpha})=>{
+    const col=JUR_CSS[n.jur]||'#90b8f8';
+    const important=n.cit>=8 || topNodes.includes(n) || n===selectedNode;
+    const keyIndex=topNodes.indexOf(n)+1;
+
+    lctx.save();
+
+    // Connecting line — subtle
+    lctx.globalAlpha=alpha*.45;
+    lctx.beginPath(); lctx.moveTo(sx,sy); lctx.lineTo(lx,ly);
+    lctx.strokeStyle=col; lctx.lineWidth=.55; lctx.stroke();
+
+    // Tiny dot at label anchor
+    lctx.globalAlpha=alpha*.7;
+    lctx.beginPath(); lctx.arc(lx,ly,1.2,0,Math.PI*2);
+    lctx.fillStyle=col; lctx.fill();
+
+    // Font
+    const fs=important?10:8.5;
+    lctx.font=`${important?'700 ':''}${fs}px 'Rajdhani','Segoe UI',Arial`;
+    const labelText=(keyIndex>0?keyIndex+' · ':'')+n.label;
+    const tw=lctx.measureText(labelText).width;
+    const th=fs+2;
+    const alignRight=lx<cx;
+    const textX=alignRight ? lx-3 : lx+4;
+
+    // Dark background chip
+    const bx=alignRight ? textX-tw-2 : textX-2;
+    lctx.globalAlpha=alpha*.45;
+    lctx.fillStyle='#02040e';
+    lctx.fillRect(bx, ly-th+1, tw+4, th+1);
+
+    // Text
+    lctx.globalAlpha=alpha;
+    lctx.fillStyle=col;
+    lctx.textBaseline='alphabetic';
+    lctx.textAlign=alignRight?'right':'left';
+    lctx.fillText(labelText, textX, ly);
+
+    lctx.restore();
+  });
+}
+
+// ════════════════════════════════════════════════════════════════
+// INTERACTION
+// ════════════════════════════════════════════════════════════════
+const raycaster=new THREE.Raycaster();
+const mouse=new THREE.Vector2();
+const hoverTip=document.getElementById('hover-tip');
+const pnorm=document.getElementById('pnorm');
+const pfull=document.getElementById('pfull');
+const panel=document.getElementById('panel');
+let hoveredMesh=null,selectedNode=null;
+const topNodes=[...NODES].sort((a,b)=>b.cit-a.cit).slice(0,9);
+
+function isConnectedToActive(n,active){
+  return active && (n===active || (adjacency.get(active.id)&&adjacency.get(active.id).has(n.id)));
+}
+
+function setNetworkFocus(active,strong=false){
+  NODES.forEach(n=>{
+    const related=isConnectedToActive(n,active);
+    n._mat.opacity=active ? (related ? 1 : .20) : 1;
+    n._mat.emissiveIntensity = active ? (n===active ? 1.65 : related ? 1.12 : .35) : .92;
+    n._mesh.scale.setScalar(active ? (n===active ? (strong?1.36:1.25) : related ? 1.12 : .82) : 1);
+    if(n._glowMat){
+      n._glowMat.opacity = active ? (n===active ? .38 : related ? .24 : .035) : .18;
+    }
+  });
+  linkLines.forEach(l=>{
+    const on=active && (l.a===active || l.b===active);
+    l.mat.opacity = active ? (on ? .72 : .015) : .12;
+  });
+}
+
+function selectNode(n,strong=true){
+  selectedNode=n||null;
+  setNetworkFocus(selectedNode,strong);
+  showPanel(selectedNode);
+}
+
+const RING_DESC={
+  1:"Muy cercano – incide directamente en la gestión cotidiana del directivo",
+  2:"Cercano – marco educativo específico (ESI, CFE, personal civil, convivencia)",
+  3:"Moderado – protección de derechos, educación inclusiva y técnico-profesional",
+  4:"Fundacional – Constitución, leyes orgánicas y tratados internacionales"
+};
+
+function showPanel(n){
+  panel.querySelectorAll('.pl,.pv').forEach(e=>e.remove());
+  if(!n){
+    pnorm.textContent='Explorador de normas';
+    pfull.innerHTML='<span style="color:#182840">Clic sobre una esfera para ver los detalles. Teclas 1–9 iluminan las normas más citadas.</span>';
+    return;
+  }
+  const keyIndex=topNodes.indexOf(n)+1;
+  pnorm.textContent=(keyIndex>0?keyIndex+' · ':'')+n.label;
+  pfull.textContent=n.full; pfull.style.color='#3a5878';
+  const jurLabel=n.jur==='Nac./Internacional'?'Internacional / Nacional':n.jur;
+  [['Jurisdicción',jurLabel],
+   ['Anillo',`${n.ring} · ${RING_DESC[n.ring]}`],
+   ['Citada por',`${n.cit} norma${n.cit!==1?'s':''} del corpus`],
+   ['Entrelazamientos visibles',`${adjacency.get(n.id)?.size||0} vínculo${(adjacency.get(n.id)?.size||0)!==1?'s':''}`]
+  ].forEach(([l,v])=>{
+    const le=document.createElement('div'); le.className='pl'; le.textContent=l;
+    const ve=document.createElement('div'); ve.className='pv'; ve.textContent=v;
+    ve.style.color=l==='Jurisdicción'?(JUR_CSS[n.jur]||'#d0e4ff'):'#d0e4ff';
+    panel.appendChild(le); panel.appendChild(ve);
+  });
+}
+function hilite(n,strong=false){ setNetworkFocus(n,strong); }
+function reset(n){ if(!selectedNode) setNetworkFocus(null); }
+
+threeCanvas.addEventListener('mousemove',e=>{
+  mouse.x=(e.clientX/VW)*2-1; mouse.y=-(e.clientY/VH)*2+1;
+  raycaster.setFromCamera(mouse,camera);
+  const hits=raycaster.intersectObjects(rayMeshes);
+  if(hits.length){
+    const m=hits[0].object;
+    hoveredMesh=m;
+    const nd=meshToNode.get(m);
+    if(nd!==selectedNode) setNetworkFocus(nd,false);
+    showPanel(nd);
+    hoverTip.style.display='block';
+    hoverTip.style.left=(e.clientX+16)+'px';
+    hoverTip.style.top=(e.clientY-14)+'px';
+    hoverTip.style.color=JUR_CSS[nd.jur]||'#90b8f8';
+    const jurLabel=nd.jur==='Nac./Internacional'?'Internacional / Nacional':nd.jur;
+    hoverTip.textContent=nd.label+' · '+jurLabel+' · '+nd.cit+' cita'+(nd.cit!==1?'s':'');
+    threeCanvas.style.cursor='pointer';
+  } else {
+    hoveredMesh=null;
+    hoverTip.style.display='none'; threeCanvas.style.cursor='default';
+    if(selectedNode){ setNetworkFocus(selectedNode,true); showPanel(selectedNode); }
+    else { setNetworkFocus(null); showPanel(null); }
+  }
+});
+
+let dragMoved=false;
+threeCanvas.addEventListener('click',e=>{
+  if(dragMoved)return;
+  raycaster.setFromCamera(mouse,camera);
+  const hits=raycaster.intersectObjects(rayMeshes);
+  if(hits.length){
+    selectedNode=meshToNode.get(hits[0].object);
+    setNetworkFocus(selectedNode,true); showPanel(selectedNode);
+  } else {
+    selectedNode=null; setNetworkFocus(null); showPanel(null);
+  }
+});
+
+// ════════════════════════════════════════════════════════════════
+// ORBIT + ZOOM
+// ════════════════════════════════════════════════════════════════
+let isDrag=false,prevMX=0,prevMY=0;
+let targetRotX=-.44,targetRotY=0;
+let autoRotate=true,autoTimer=null;
+
+threeCanvas.addEventListener('mousedown',e=>{
+  isDrag=true;dragMoved=false;prevMX=e.clientX;prevMY=e.clientY;
+  autoRotate=false;clearTimeout(autoTimer);
+});
+window.addEventListener('mouseup',()=>{ isDrag=false; autoTimer=setTimeout(()=>autoRotate=true,5500); });
+window.addEventListener('mousemove',e=>{
+  if(!isDrag)return;
+  const dx=e.clientX-prevMX,dy=e.clientY-prevMY;
+  if(Math.abs(dx)>2||Math.abs(dy)>2) dragMoved=true;
+  targetRotY+=dx*.009; targetRotX+=dy*.006;
+  targetRotX=Math.max(-1.4,Math.min(1.4,targetRotX));
+  prevMX=e.clientX;prevMY=e.clientY;
+});
+
+threeCanvas.addEventListener('touchstart',e=>{
+  if(e.touches.length===1){isDrag=true;dragMoved=false;prevMX=e.touches[0].clientX;prevMY=e.touches[0].clientY;autoRotate=false;clearTimeout(autoTimer);}
+},{passive:true});
+window.addEventListener('touchend',()=>{isDrag=false;autoTimer=setTimeout(()=>autoRotate=true,5500);});
+window.addEventListener('touchmove',e=>{
+  if(!isDrag||e.touches.length!==1)return;
+  const dx=e.touches[0].clientX-prevMX,dy=e.touches[0].clientY-prevMY;
+  if(Math.abs(dx)>2||Math.abs(dy)>2)dragMoved=true;
+  targetRotY+=dx*.009;targetRotX+=dy*.006;targetRotX=Math.max(-1.4,Math.min(1.4,targetRotX));
+  prevMX=e.touches[0].clientX;prevMY=e.touches[0].clientY;
+},{passive:true});
+
+let camDist=camera.position.length();
+window.addEventListener('wheel',e=>{camDist=Math.max(9,Math.min(38,camDist+e.deltaY*.04));},{passive:true});
+
+window.addEventListener('keydown',e=>{
+  if(e.key>='1' && e.key<='9'){
+    const n=topNodes[Number(e.key)-1];
+    if(n){ selectedNode=n; setNetworkFocus(n,true); showPanel(n); }
+  }
+  if(e.key==='0' || e.key==='Escape'){
+    selectedNode=null; hoveredMesh=null; setNetworkFocus(null); showPanel(null);
+  }
+});
+
+// ════════════════════════════════════════════════════════════════
+// ANIMATION LOOP
+// ════════════════════════════════════════════════════════════════
+const clock=new THREE.Clock();
+const camDir=new THREE.Vector3();
+
+function animate(){
+  requestAnimationFrame(animate);
+  const t=clock.getElapsedTime();
+
+  // Slow, graceful auto-rotation
+  if(autoRotate) targetRotY+=.0016; // ~1 revolution per 65 s
+
+  rGroup.rotation.x+=(targetRotX-rGroup.rotation.x)*.07;
+  rGroup.rotation.y+=(targetRotY-rGroup.rotation.y)*.07;
+
+  camDir.copy(camera.position).normalize().multiplyScalar(camDist);
+  camera.position.lerp(camDir,.06);
+  camera.lookAt(0,0,0);
+
+  // Node pulse
+  NODES.forEach(n=>{
+    const active=selectedNode || (hoveredMesh?meshToNode.get(hoveredMesh):null);
+    if(n._glowMat && !active)
+      n._glowMat.opacity=.14+.06*Math.sin(t*1.1+n._angle*2.4);
+  });
+  // Center corona pulse — yellow center
+  sunPt.intensity=3.2+.9*Math.sin(t*.45);
+
+  renderer.render(scene,camera);
+  updateLabels();
+}
+
+// Resize
+window.addEventListener('resize',()=>{
+  VW=window.innerWidth;VH=window.innerHeight;
+  camera.aspect=VW/VH; camera.updateProjectionMatrix();
+  renderer.setSize(VW,VH);
+  lblCv.width=VW; lblCv.height=VH;
+  drawBG();
+});
+
+// Boot
+targetRotX=-.44; rGroup.rotation.x=-.44;
+setNetworkFocus(null); showPanel(null);
+animate();
+</script>
+</body>
+</html>
