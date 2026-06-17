@@ -20,7 +20,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020308;col
   let html=await res.text();
 
   html=html.replace(/#center-label\{[\s\S]*?\n\}/, `#center-label{
-  position:fixed;left:35.46%;top:50%;
+  position:fixed;left:33.06%;top:50%;
   transform:translate(-50%,-50%);
   z-index:150;pointer-events:none;
   background:rgba(0,0,0,.55);
@@ -46,6 +46,9 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020308;col
 #head p{`);
 
   html=html.replace('<h1>LA CONSTELACIÓN PLURINORMATIVA DE LA DIRECCIÓN ESCOLAR</h1>', '<h1><span>LA CONSTELACIÓN PLURINORMATIVA DE LA</span><span>DIRECCIÓN ESCOLAR</span></h1>');
+  html=html.replace(/#ctrl\{[^}]*\}/, '#ctrl{display:none}');
+  html=html.replace(/<div id="ctrl">[\s\S]*?<\/div>/, '<div id="ctrl"></div>');
+  html=html.replace(/<div id="label-move-box">[\s\S]*?<\/script>\s*/g, '');
 
   document.open();
   document.write(html);
