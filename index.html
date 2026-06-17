@@ -21,17 +21,23 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020308;col
 
   html=html.replace(/#center-label\{[\s\S]*?\n\}/, `#center-label{
   position:fixed;left:22.5%;top:50%;
-  transform:translate(-50%,22px);
+  transform:translate(-50%,-50%);
   z-index:150;pointer-events:none;
-  background:rgba(0,0,0,.90);
-  color:#ffe000;
-  font-size:10px;font-weight:800;
-  letter-spacing:1.4px;text-transform:uppercase;
-  padding:3px 9px;border-radius:3px;
-  border:1px solid rgba(255,224,0,.75);
+  background:transparent;
+  color:#0a0610;
+  font-size:8.5px;font-weight:900;
+  line-height:.82;
+  letter-spacing:.75px;text-transform:uppercase;
+  padding:0;border-radius:0;
+  border:none;
   white-space:nowrap;
-  box-shadow:0 0 14px rgba(255,220,0,.50);
-}`);
+  box-shadow:none;
+  text-align:center;
+  text-shadow:0 0 2px rgba(255,255,255,.85),0 0 6px rgba(255,224,0,.75);
+}
+#center-label span{display:block}`);
+
+  html=html.replace('<div id="center-label">◆ Dirección Escolar ◆</div>', '<div id="center-label"><span>DIRECCIÓN</span><span>ESCOLAR</span></div>');
 
   html=html.replace(/#head\{[\s\S]*?\n#head h1\{[\s\S]*?\n#head p\{/, `#head{position:fixed;top:12px;left:calc((100vw - 500px)/2);transform:translateX(-50%);
   text-align:center;pointer-events:none;max-width:1120px;width:calc(100vw - 540px);z-index:100}
